@@ -1,119 +1,85 @@
 *,
 *::after,
 *::before {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
 }
 
 .container {
-    background-color: #1e1e25;
-    min-width: 100%;
-    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    background-color: #fefefe;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.form {
-    background-color: #27293d;
+.pagination-component {
+    height: 250px;
     width: 100%;
-    max-width: 500px;
-    height: 800px;
-    border-radius: 10px;
-    padding: 20px;
+    max-width: 700px;
+    border-radius: 5px;
+    border: 2px solid #dddddd;
+    padding: 3em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
-.form__section {
-    height: 115px;
-}
-
-.form__label {
-    display: block;
-    color: #ffffff;
-    padding: 5px 0;
-}
-
-.form__wrapper {
+.pagination-component__container {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.form__input {
-    height: 45px;
-    border: 2px solid #4444ff;
-    border-radius: 20px;
-    padding: 15px;
-    width: 350px;
-    background: transparent;
-    color: #ffffff;
-    flex-shrink: 1;
-}
-
-.form__input:focus {
-    border: 2px solid #d54fd7;
-}
-
-.form__error {
-    color: #ff1133;
-    font-size: 0.8em;
-    padding: 5px 0;
-}
-
-.form__delete {
+.pagination-component__button,
+.pagination-component__page {
+    width: 40px;
+    height: 40px;
     border: none;
-    width: 30px;
-    height: 30px;
+    background-color: #f6f6f6;
+    color: #000000;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.pagination-component__button {
+    opacity: 1;
     cursor: pointer;
-    background: transparent;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
 }
 
-.form__delete::after,
-.form__delete::before {
-    content: '';
-    height: 100%;
-    background: #ffffff;
-    width: 10px;
+.pagination-component__svg {
+    height: 40px;
+    width: 40px;
 }
 
-.form__delete::after {
-    transform: translateX(-10px) rotate(45deg);
+.pagination-component__button--left {
+    order: -1;
 }
 
-.form__delete::before {
-    transform: translateX(10px) rotate(-45deg);
+.pagination-component__button--right {
+    order: 1;
 }
 
-.form__buttons {
-    display: flex;
-    justify-content: space-between;
+.pagination-component__button--disabled {
+    opacity: 0.5;
 }
 
-.form__button {
-    width: 140px;
-    height: 45px;
-    border: 1px solid #606b91;
-    background-color: #305cf4;
+.pagination-component__page--active {
+    background-color: #ff4757;
     color: #ffffff;
+}
+
+.pagination-component__pages {
+    display: flex;
+}
+
+.pagination-component__page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
-    border-radius: 20px;
-    font-size: 1.3em;
-}
-
-.form__button--submit {
-    background-color: #d54fd7;
-}
-
-.form__button--add::first-letter,
-.form__button--submit::first-letter {
-    text-transform: uppercase;
-}
-
-.form__button--disabled {
-    background-color: #444444;
 }

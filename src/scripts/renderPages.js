@@ -1,26 +1,41 @@
+const DEFAULT_FIRST_ELEMENT = 1;
+const MIN_ELEMENTS_TO_SHOW_FROM_LEFT = 4;
+const MIN_ELEMENTS_TO_SHOW_FROM_RIGHT = 3;
+const MIN_ELEMENTS_BEFORE_ACTIVE_ELEMENT = 2;
+const MIN_ELEMENTS_AFTER_ACTIVE_ELEMENT = 1;
+const VISIBLE_ELEMENTS_AFTER_FIRST_ELEMENT_ON_MIDDLE = 3;
+const MAX_ELEMENTS_TO_DISPLAY_ALL_ELEMENTS = 6;
+const MIN_VALUE_FROM_RIGHT_TO_SHOW_RIGHT_DOTS = 2;
+
 const paginationComponentPages = document.querySelector(
     '.pagination-component__pages'
 );
 
-const checkCounterForRightPagination = (currentElement, maxElement) => {
-    return Math.min(currentElement - 2, maxElement - 3);
+const getPaginationStartWhenLeftDots = (currentElement, maxElement) => {
+    return Math.min(
+        currentElement - MIN_ELEMENTS_BEFORE_ACTIVE_ELEMENT,
+        maxElement - MIN_ELEMENTS_TO_SHOW_FROM_RIGHT
+    );
 };
 
-const checkCounterForLeftPagination = currentElement => {
-    return Math.max(currentElement + 1, 4);
+const getPaginationStartWhenRightDots = currentElement => {
+    return Math.max(
+        currentElement + MIN_ELEMENTS_AFTER_ACTIVE_ELEMENT,
+        MIN_ELEMENTS_TO_SHOW_FROM_LEFT
+    );
 };
 
-const checkCounterForMiddlePagination = currentElement => {
-    return currentElement - 2;
+const getPaginationStartWhenBothDots = currentElement => {
+    return currentElement - MIN_ELEMENTS_BEFORE_ACTIVE_ELEMENT;
 };
 
-const checkPaginationEnd = paginationStart => {
-    return paginationStart + 3;
+const getPaginationEndWhenBothDots = paginationStart => {
+    return paginationStart + VISIBLE_ELEMENTS_AFTER_FIRST_ELEMENT_ON_MIDDLE;
 };
 
 const appendFirstElements = () => {
     const firstElements = /* HTML */ `
-        <div class="pagination-component__page">1</div>
+        <div class="pagination-component__page" id="1">1</div>
         <div
             class="
             pagination-component__page"
@@ -37,6 +52,7 @@ const appendLastElements = maxElement => {
         <div
             class="
             pagination-component__page"
+            id="${maxElement}"
         >
             ${maxElement}
         </div>
@@ -54,23 +70,27 @@ const createPaginationElements = (
     for (let counter = paginationStart; counter <= paginationEnd; counter++) {
         if (currentElement === counter) {
             paginationPages += `<div
-            class="pagination-component__page pagination-component__page--active">${counter}</div>`;
+            class="pagination-component__page pagination-component__page--active" id="${counter}">${counter}</div>`;
             continue;
         }
         paginationPages += `<div
-            class="pagination-component__page">${counter}</div>`;
+            class="pagination-component__page" id="${counter}">${counter}</div>`;
     }
     paginationComponentPages.insertAdjacentHTML('beforeend', paginationPages);
 };
 
-const createLeftActiveSlides = (currentElement, maxElement) => {
-    const paginationEnd = checkCounterForLeftPagination(currentElement);
-    createPaginationElements(1, paginationEnd, currentElement);
+const addThreeDotsOnRightSide = (currentElement, maxElement) => {
+    const paginationEnd = getPaginationStartWhenRightDots(currentElement);
+    createPaginationElements(
+        DEFAULT_FIRST_ELEMENT,
+        paginationEnd,
+        currentElement
+    );
     appendLastElements(maxElement);
 };
 
-const createRightActiveSlides = (currentElement, maxElement) => {
-    const paginationStart = checkCounterForRightPagination(
+const addThreeDotsOnLeftSide = (currentElement, maxElement) => {
+    const paginationStart = getPaginationStartWhenLeftDots(
         currentElement,
         maxElement
     );
@@ -78,37 +98,43 @@ const createRightActiveSlides = (currentElement, maxElement) => {
     appendFirstElements();
 };
 
-const createMiddleActiveSlides = (currentElement, maxElement) => {
-    const paginationStart = checkCounterForMiddlePagination(currentElement);
-    const paginationEnd = checkPaginationEnd(paginationStart);
+const addThreeDotsOnBothSides = (currentElement, maxElement) => {
+    const paginationStart = getPaginationStartWhenBothDots(currentElement);
+    const paginationEnd = getPaginationEndWhenBothDots(paginationStart);
     createPaginationElements(paginationStart, paginationEnd, currentElement);
     appendFirstElements();
     appendLastElements(maxElement);
 };
 
-const isElementBiggerThanFour = currentElement => {
-    return currentElement > 4;
+const addAllPages = (currentElement, maxElement) => {
+    createPaginationElements(DEFAULT_FIRST_ELEMENT, maxElement, currentElement);
 };
 
-const isElementLessThanMaxMinusThree = (currentElement, maxElement) => {
-    return currentElement < maxElement - 2;
+const canLeftDotsBeShown = currentElement => {
+    return currentElement > MIN_ELEMENTS_TO_SHOW_FROM_LEFT;
 };
 
-const isMaxElementLessOrEqualThanSix = maxElement => {
-    return maxElement <= 6;
-};
-
-const isApplicableForLeftActiveSlide = (currentElement, maxElement) => {
+const canRightDotsBeShown = (currentElement, maxElement) => {
     return (
-        !isElementBiggerThanFour(currentElement) &&
-        isElementLessThanMaxMinusThree(currentElement, maxElement)
+        currentElement < maxElement - MIN_VALUE_FROM_RIGHT_TO_SHOW_RIGHT_DOTS
     );
 };
 
-const isApplicableForRightActiveSlide = (currentElement, maxElement) => {
+const canAllElementsBeShown = maxElement => {
+    return maxElement <= MAX_ELEMENTS_TO_DISPLAY_ALL_ELEMENTS;
+};
+
+const isApplicableForAddingRightDots = (currentElement, maxElement) => {
     return (
-        isElementBiggerThanFour(currentElement) &&
-        !isElementLessThanMaxMinusThree(currentElement, maxElement)
+        !canLeftDotsBeShown(currentElement) &&
+        canRightDotsBeShown(currentElement, maxElement)
+    );
+};
+
+const isApplicableForAddingLeftDots = (currentElement, maxElement) => {
+    return (
+        canLeftDotsBeShown(currentElement) &&
+        !canRightDotsBeShown(currentElement, maxElement)
     );
 };
 
@@ -118,15 +144,13 @@ const cleanPagesContainer = () => {
 
 export const createPagesStructure = (currentElement, maxElement) => {
     cleanPagesContainer();
-    if (isMaxElementLessOrEqualThanSix(maxElement)) {
-        createPaginationElements(1, maxElement, currentElement);
-    } else if (isApplicableForLeftActiveSlide(currentElement, maxElement)) {
-        createLeftActiveSlides(currentElement, maxElement);
-    } else if (isApplicableForRightActiveSlide(currentElement, maxElement)) {
-        createRightActiveSlides(currentElement, maxElement);
+    if (canAllElementsBeShown(maxElement)) {
+        addAllPages(currentElement, maxElement);
+    } else if (isApplicableForAddingRightDots(currentElement, maxElement)) {
+        addThreeDotsOnRightSide(currentElement, maxElement);
+    } else if (isApplicableForAddingLeftDots(currentElement, maxElement)) {
+        addThreeDotsOnLeftSide(currentElement, maxElement);
     } else {
-        createMiddleActiveSlides(currentElement, maxElement);
+        addThreeDotsOnBothSides(currentElement, maxElement);
     }
 };
-
-// createPagesStructure(3, 10);

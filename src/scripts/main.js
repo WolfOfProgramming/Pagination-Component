@@ -1,96 +1,142 @@
-import { renderInput } from './renderInput';
 import { renderButton } from './renderButton';
-import { isInputsCorrect, createErrorParagraphs } from './validation';
+import { renderForm } from './renderForm';
+import { createPagesStructure } from './renderPages';
+import debounce from 'lodash/debounce';
 
-const formButtons = document.querySelector('.form__buttons');
-const formContainer = document.querySelector('.form__container');
-formButtons.insertAdjacentHTML('beforeend', renderButton('add'));
-formButtons.insertAdjacentHTML('beforeend', renderButton('submit'));
+const DEFAULT_ELEMENT = 1;
+const DEFAULT_MAX_PAGE = 10;
 
-const addButton = document.querySelector('.form__button--add');
-const submitButton = document.querySelector('.form__button--submit');
-const MAX_INPUT_COUNT = 6;
+const paginationComponentContainer = document.querySelector(
+    '.pagination-component__container'
+);
+renderButton('left', paginationComponentContainer);
+renderButton('right', paginationComponentContainer);
 
-let activeInputs = 0;
+const paginationComponent = document.querySelector('.pagination-component');
 
-const deleteErrorParagraphs = () => {
-    const formSections = document.querySelectorAll('.form__section');
-    formSections.forEach(formSection => {
-        const formError = formSection.querySelector('.form__error');
-        if (formError) {
-            formSection.removeChild(formError);
-        }
+renderForm(paginationComponent);
+
+const leftButton = paginationComponent.querySelector(
+    '.pagination-component__button--left'
+);
+const rightButton = paginationComponent.querySelector(
+    '.pagination-component__button--right'
+);
+const paginationComponentInput = paginationComponent.querySelector(
+    '.pagination-component__input'
+);
+
+let currentElement = DEFAULT_ELEMENT;
+let maxElement = DEFAULT_MAX_PAGE;
+
+const updateCurrentElement = () => {
+    const url = new URL(document.URL);
+    if (url.searchParams.has('p')) {
+        currentElement = Number(url.searchParams.get('p'));
+    }
+};
+
+const updateURL = currentElement => {
+    const url = new URL(`?p=${currentElement}`, document.URL);
+    window.history.pushState('', '', url);
+};
+
+const isTooBig = (currentElement, maxElement) => {
+    return currentElement >= maxElement;
+};
+
+const isTooSmall = currentElement => {
+    return currentElement <= 1;
+};
+
+const addClickEventsOnPages = maxElement => {
+    const pages = document.querySelectorAll('.pagination-component__page');
+    pages.forEach(page => {
+        page.addEventListener('click', () => {
+            if (page.id && page.id !== currentElement) {
+                currentElement = Number(page.id);
+                renderPages(currentElement, maxElement);
+                updateURL(currentElement);
+            }
+        });
     });
 };
 
-const updateCounter = result => {
-    if (result) {
-        activeInputs += 1;
+const disableButtonEffects = () => {
+    leftButton.classList.remove('pagination-component__button--disabled');
+    rightButton.classList.remove('pagination-component__button--disabled');
+};
+
+const updateButtonsState = (currentElement, maxElement) => {
+    disableButtonEffects();
+    if (currentElement === maxElement) {
+        rightButton.classList.add('pagination-component__button--disabled');
+    } else if (currentElement === 1) {
+        leftButton.classList.add('pagination-component__button--disabled');
+    }
+};
+
+const renderPages = (currentElement, maxElement) => {
+    updateButtonsState(currentElement, maxElement);
+    updateURL(currentElement);
+    createPagesStructure(currentElement, maxElement);
+    addClickEventsOnPages(maxElement);
+};
+
+const fixValidationOfCurrentElement = () => {
+    if (isTooSmall(currentElement)) {
+        currentElement = 1;
+    } else if (isTooBig(currentElement, maxElement)) {
+        currentElement = maxElement;
+    }
+};
+
+const updateMaxElement = () => {
+    const newValue = paginationComponentInput.value;
+    if (!isNaN(newValue)) {
+        maxElement = Number(newValue);
+        fixValidationOfCurrentElement();
+        renderPages(currentElement, maxElement);
+    }
+};
+
+const loadPreviousPage = () => {
+    if (!isTooSmall(currentElement)) {
+        currentElement = Number(currentElement) - 1;
     } else {
-        activeInputs -= 1;
+        fixValidationOfCurrentElement();
     }
+    renderPages(currentElement, maxElement);
 };
 
-const updateNumbers = () => {
-    const spans = document.querySelectorAll('.form__number');
-    spans.forEach((span, index) => (span.textContent = index + 1));
+const loadNextPage = () => {
+    if (!isTooBig(currentElement, maxElement)) {
+        currentElement = Number(currentElement) + 1;
+    } else {
+        fixValidationOfCurrentElement();
+    }
+    renderPages(currentElement, maxElement);
 };
 
-const generateInput = activeInputs => {
-    const formInput = renderInput(activeInputs);
-    formContainer.insertAdjacentHTML('beforeend', formInput);
-
-    const currentElement = formContainer.lastElementChild;
-    const currentDeleteButton = currentElement.querySelector('.form__delete');
-    if (currentDeleteButton) {
-        currentDeleteButton.addEventListener('click', e => {
-            if (
-                e.target.parentNode.parentNode.classList.contains(
-                    'form__section'
-                )
-            ) {
-                e.target.parentNode.parentNode.remove();
-                deleteErrorParagraphs();
-                updateNumbers();
-                updateCounter(false);
-                addButton.classList.remove('form__button--disabled');
-            }
-        });
-    }
-    currentElement.querySelector('.form__input').focus();
-    updateCounter(true);
-};
-
-generateInput(activeInputs);
-
-addButton.addEventListener('click', () => {
-    const inputs = document.querySelectorAll('.form__input');
-    deleteErrorParagraphs();
-    if (activeInputs < MAX_INPUT_COUNT) {
-        if (isInputsCorrect(inputs)) {
-            generateInput(activeInputs);
-        } else {
-            createErrorParagraphs(inputs);
-        }
-    }
-    if (activeInputs === MAX_INPUT_COUNT) {
-        addButton.classList.add('form__button--disabled');
+document.addEventListener('keydown', e => {
+    if (e.keyCode === 37) {
+        loadPreviousPage();
+    } else if (e.keyCode === 39) {
+        loadNextPage();
     }
 });
 
-submitButton.addEventListener('click', e => {
-    e.preventDefault();
-    deleteErrorParagraphs();
-    const inputs = document.querySelectorAll('.form__input');
-    if (isInputsCorrect(inputs)) {
-        let url = new URL(document.URL);
+leftButton.addEventListener('click', loadPreviousPage);
 
-        const inputsValues = [];
-        inputs.forEach(input => inputsValues.push(input.value));
+rightButton.addEventListener('click', loadNextPage);
 
-        window.location.href =
-            url.origin + '?passwords=' + inputsValues.join(';');
-    } else {
-        createErrorParagraphs(inputs);
-    }
-});
+paginationComponentInput.addEventListener(
+    'input',
+    debounce(updateMaxElement, 1000)
+);
+
+updateCurrentElement();
+if (isTooBig(currentElement, maxElement) || isTooSmall(currentElement)) {
+    fixValidationOfCurrentElement();
+}
+renderPages(currentElement, maxElement);

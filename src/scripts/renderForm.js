@@ -1,17 +1,13 @@
-const paginationComponent = document.querySelector('.pagination-component');
-
-const renderForm = () => {
+export const renderForm = parentElement => {
     const input = /* HTML */ `
         <form action="" method="GET" class="pagination-component__form">
-            <label for="pagination-component__input">Max page:</label>
+            <label for="max-element-input">Max page:</label>
             <input
-                id="pagination-component__input"
+                id="max-element-input"
                 class="pagination-component__input"
                 type="text"
             />
         </form>
     `;
-    paginationComponent.insertAdjacentHTML('afterbegin', input);
+    parentElement.insertAdjacentHTML('afterbegin', input);
 };
-
-renderForm();
