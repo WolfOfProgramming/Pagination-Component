@@ -3,8 +3,9 @@ import { renderForm } from './renderForm';
 import { createPagesStructure } from './renderPages';
 import debounce from 'lodash/debounce';
 
-const DEFAULT_ELEMENT = 1;
+const DEFAULT_FIRST_ELEMENT = 1;
 const DEFAULT_MAX_PAGE = 10;
+const MAX_PAGE_LIMIT = 999;
 
 const paginationComponentContainer = document.querySelector(
     '.pagination-component__container'
@@ -26,12 +27,12 @@ const paginationComponentInput = paginationComponent.querySelector(
     '.pagination-component__input'
 );
 
-let currentElement = DEFAULT_ELEMENT;
+let currentElement = DEFAULT_FIRST_ELEMENT;
 let maxElement = DEFAULT_MAX_PAGE;
 
 const updateCurrentElement = () => {
     const url = new URL(document.URL);
-    if (url.searchParams.has('p')) {
+    if (url.searchParams.has('p') && !isNaN(url.searchParams.get('p'))) {
         currentElement = Number(url.searchParams.get('p'));
     }
 };
@@ -93,8 +94,14 @@ const fixValidationOfCurrentElement = () => {
 
 const updateMaxElement = () => {
     const newValue = paginationComponentInput.value;
-    if (!isNaN(newValue)) {
-        maxElement = Number(newValue);
+    if (!isNaN(newValue) && newValue) {
+        maxElement =
+            Number(newValue) <= MAX_PAGE_LIMIT
+                ? Math.round(Number(newValue))
+                : MAX_PAGE_LIMIT;
+        if (isTooSmall(maxElement)) {
+            maxElement = DEFAULT_FIRST_ELEMENT;
+        }
         fixValidationOfCurrentElement();
         renderPages(currentElement, maxElement);
     }

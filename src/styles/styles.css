@@ -18,7 +18,7 @@
 .pagination-component {
     height: 250px;
     width: 100%;
-    max-width: 700px;
+    max-width: 650px;
     border-radius: 5px;
     border: 2px solid #dddddd;
     padding: 3em;
@@ -82,4 +82,46 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .pagination-component__button,
+    .pagination-component__page {
+        width: 30px;
+        height: 30px;
+        border-radius: 3px;
+        margin: 3px;
+    }
+    .pagination-component__svg {
+        height: 30px;
+        width: 30px;
+    }
+
+    .pagination-component {
+        padding: 1em;
+        height: 150px;
+    }
+
+    .pagination-component__container {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 350px) {
+    .pagination-component__button,
+    .pagination-component__page {
+        width: 20px;
+        height: 20px;
+        border-radius: 2px;
+        margin: 2px;
+    }
+    .pagination-component__svg {
+        height: 20px;
+        width: 20px;
+    }
+
+    .pagination-component {
+        padding: 0.5em;
+        height: 120px;
+    }
 }

@@ -35,27 +35,29 @@ const getPaginationEndWhenBothDots = paginationStart => {
 
 const appendFirstElements = () => {
     const firstElements = /* HTML */ `
-        <div class="pagination-component__page" id="1">1</div>
-        <div
+        <li class="pagination-component__page" id="1"><a>1</a></li>
+        <li
             class="
             pagination-component__page"
         >
-            ...
-        </div>
+            <a>...</a>
+        </li>
     `;
     paginationComponentPages.insertAdjacentHTML('afterbegin', firstElements);
 };
 
 const appendLastElements = maxElement => {
     const lastElements = /* HTML */ `
-        <div class="pagination-component__page">...</div>
-        <div
+        <li class="pagination-component__page">
+            <a>...</a>
+        </li>
+        <li
             class="
             pagination-component__page"
             id="${maxElement}"
         >
-            ${maxElement}
-        </div>
+            <a>${maxElement}</a>
+        </li>
     `;
     paginationComponentPages.insertAdjacentHTML('beforeend', lastElements);
 };
@@ -69,12 +71,12 @@ const createPaginationElements = (
 
     for (let counter = paginationStart; counter <= paginationEnd; counter++) {
         if (currentElement === counter) {
-            paginationPages += `<div
-            class="pagination-component__page pagination-component__page--active" id="${counter}">${counter}</div>`;
+            paginationPages += `<li
+            class="pagination-component__page pagination-component__page--active" id="${counter}"><a>${counter}</a></li>`;
             continue;
         }
-        paginationPages += `<div
-            class="pagination-component__page" id="${counter}">${counter}</div>`;
+        paginationPages += `<li
+            class="pagination-component__page" id="${counter}"><a>${counter}</a></li>`;
     }
     paginationComponentPages.insertAdjacentHTML('beforeend', paginationPages);
 };
