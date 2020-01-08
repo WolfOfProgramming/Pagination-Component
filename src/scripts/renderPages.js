@@ -7,10 +7,6 @@ const VISIBLE_ELEMENTS_AFTER_FIRST_ELEMENT_ON_MIDDLE = 3;
 const MAX_ELEMENTS_TO_DISPLAY_ALL_ELEMENTS = 6;
 const MIN_VALUE_FROM_RIGHT_TO_SHOW_RIGHT_DOTS = 2;
 
-const paginationComponentPages = document.querySelector(
-    '.pagination-component__pages'
-);
-
 const getPaginationStartWhenLeftDots = (currentElement, maxElement) => {
     return Math.min(
         currentElement - MIN_ELEMENTS_BEFORE_ACTIVE_ELEMENT,
@@ -33,36 +29,38 @@ const getPaginationEndWhenBothDots = paginationStart => {
     return paginationStart + VISIBLE_ELEMENTS_AFTER_FIRST_ELEMENT_ON_MIDDLE;
 };
 
-const appendFirstElements = () => {
+const getFirstElements = () => {
     const firstElements = /* HTML */ `
-        <li class="pagination-component__page" id="1"><a>1</a></li>
+        <li class="pagination-component__page" id="1">
+            <a class="pagination-component__link">1</a>
+        </li>
         <li
             class="
             pagination-component__page"
         >
-            <a>...</a>
+            <a class="pagination-component__link">...</a>
         </li>
     `;
-    paginationComponentPages.insertAdjacentHTML('afterbegin', firstElements);
+    return firstElements;
 };
 
-const appendLastElements = maxElement => {
+const getLastElements = maxElement => {
     const lastElements = /* HTML */ `
         <li class="pagination-component__page">
-            <a>...</a>
+            <a class="pagination-component__link">...</a>
         </li>
         <li
             class="
             pagination-component__page"
             id="${maxElement}"
         >
-            <a>${maxElement}</a>
+            <a class="pagination-component__link">${maxElement}</a>
         </li>
     `;
-    paginationComponentPages.insertAdjacentHTML('beforeend', lastElements);
+    return lastElements;
 };
 
-const createPaginationElements = (
+const getPaginationElements = (
     paginationStart,
     paginationEnd,
     currentElement
@@ -72,23 +70,24 @@ const createPaginationElements = (
     for (let counter = paginationStart; counter <= paginationEnd; counter++) {
         if (currentElement === counter) {
             paginationPages += `<li
-            class="pagination-component__page pagination-component__page--active" id="${counter}"><a>${counter}</a></li>`;
+            class="pagination-component__page pagination-component__page--active" id="${counter}"><a class="pagination-component__link">${counter}</a></li>`;
             continue;
         }
         paginationPages += `<li
-            class="pagination-component__page" id="${counter}"><a>${counter}</a></li>`;
+            class="pagination-component__page" id="${counter}"><a class="pagination-component__link">${counter}</a></li>`;
     }
-    paginationComponentPages.insertAdjacentHTML('beforeend', paginationPages);
+    return paginationPages;
 };
 
 const addThreeDotsOnRightSide = (currentElement, maxElement) => {
     const paginationEnd = getPaginationStartWhenRightDots(currentElement);
-    createPaginationElements(
+    let paginationPages = getPaginationElements(
         DEFAULT_FIRST_ELEMENT,
         paginationEnd,
         currentElement
     );
-    appendLastElements(maxElement);
+    paginationPages += getLastElements(maxElement);
+    return paginationPages;
 };
 
 const addThreeDotsOnLeftSide = (currentElement, maxElement) => {
@@ -96,20 +95,34 @@ const addThreeDotsOnLeftSide = (currentElement, maxElement) => {
         currentElement,
         maxElement
     );
-    createPaginationElements(paginationStart, maxElement, currentElement);
-    appendFirstElements();
+    let paginationPages = getFirstElements();
+    paginationPages += getPaginationElements(
+        paginationStart,
+        maxElement,
+        currentElement
+    );
+    return paginationPages;
 };
 
 const addThreeDotsOnBothSides = (currentElement, maxElement) => {
     const paginationStart = getPaginationStartWhenBothDots(currentElement);
     const paginationEnd = getPaginationEndWhenBothDots(paginationStart);
-    createPaginationElements(paginationStart, paginationEnd, currentElement);
-    appendFirstElements();
-    appendLastElements(maxElement);
+    let paginationPages = getFirstElements();
+    paginationPages += getPaginationElements(
+        paginationStart,
+        paginationEnd,
+        currentElement
+    );
+    paginationPages += getLastElements(maxElement);
+    return paginationPages;
 };
 
-const addAllPages = (currentElement, maxElement) => {
-    createPaginationElements(DEFAULT_FIRST_ELEMENT, maxElement, currentElement);
+const getAllPages = (currentElement, maxElement) => {
+    return getPaginationElements(
+        DEFAULT_FIRST_ELEMENT,
+        maxElement,
+        currentElement
+    );
 };
 
 const canLeftDotsBeShown = currentElement => {
@@ -140,19 +153,14 @@ const isApplicableForAddingLeftDots = (currentElement, maxElement) => {
     );
 };
 
-const cleanPagesContainer = () => {
-    paginationComponentPages.textContent = '';
-};
-
 export const createPagesStructure = (currentElement, maxElement) => {
-    cleanPagesContainer();
     if (canAllElementsBeShown(maxElement)) {
-        addAllPages(currentElement, maxElement);
+        return getAllPages(currentElement, maxElement);
     } else if (isApplicableForAddingRightDots(currentElement, maxElement)) {
-        addThreeDotsOnRightSide(currentElement, maxElement);
+        return addThreeDotsOnRightSide(currentElement, maxElement);
     } else if (isApplicableForAddingLeftDots(currentElement, maxElement)) {
-        addThreeDotsOnLeftSide(currentElement, maxElement);
+        return addThreeDotsOnLeftSide(currentElement, maxElement);
     } else {
-        addThreeDotsOnBothSides(currentElement, maxElement);
+        return addThreeDotsOnBothSides(currentElement, maxElement);
     }
 };

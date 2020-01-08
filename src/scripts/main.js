@@ -10,13 +10,21 @@ const MAX_PAGE_LIMIT = 999;
 const paginationComponentContainer = document.querySelector(
     '.pagination-component__container'
 );
-renderButton('left', paginationComponentContainer);
-renderButton('right', paginationComponentContainer);
+paginationComponentContainer.insertAdjacentHTML(
+    'afterbegin',
+    renderButton('left')
+);
+paginationComponentContainer.insertAdjacentHTML(
+    'afterbegin',
+    renderButton('right')
+);
 
 const paginationComponent = document.querySelector('.pagination-component');
+paginationComponent.insertAdjacentHTML('afterbegin', renderForm());
 
-renderForm(paginationComponent);
-
+const paginationComponentPages = document.querySelector(
+    '.pagination-component__pages'
+);
 const leftButton = paginationComponent.querySelector(
     '.pagination-component__button--left'
 );
@@ -30,11 +38,15 @@ const paginationComponentInput = paginationComponent.querySelector(
 let currentElement = DEFAULT_FIRST_ELEMENT;
 let maxElement = DEFAULT_MAX_PAGE;
 
-const updateCurrentElement = () => {
+const getCurrentElement = () => {
     const url = new URL(document.URL);
     if (url.searchParams.has('p') && !isNaN(url.searchParams.get('p'))) {
-        currentElement = Number(url.searchParams.get('p'));
+        return Number(url.searchParams.get('p'));
     }
+};
+
+const cleanPagesContainer = () => {
+    paginationComponentPages.textContent = '';
 };
 
 const updateURL = currentElement => {
@@ -56,8 +68,12 @@ const addClickEventsOnPages = maxElement => {
         page.addEventListener('click', () => {
             if (page.id && page.id !== currentElement) {
                 currentElement = Number(page.id);
-                renderPages(currentElement, maxElement);
-                updateURL(currentElement);
+                const paginationPages = renderPages(currentElement, maxElement);
+                paginationComponentPages.insertAdjacentHTML(
+                    'afterbegin',
+                    paginationPages
+                );
+                addClickEventsOnPages(maxElement);
             }
         });
     });
@@ -72,38 +88,49 @@ const updateButtonsState = (currentElement, maxElement) => {
     disableButtonEffects();
     if (currentElement === maxElement) {
         rightButton.classList.add('pagination-component__button--disabled');
-    } else if (currentElement === 1) {
+    }
+    if (currentElement === 1) {
         leftButton.classList.add('pagination-component__button--disabled');
     }
 };
 
 const renderPages = (currentElement, maxElement) => {
+    cleanPagesContainer();
     updateButtonsState(currentElement, maxElement);
     updateURL(currentElement);
-    createPagesStructure(currentElement, maxElement);
-    addClickEventsOnPages(maxElement);
+    return createPagesStructure(currentElement, maxElement);
 };
 
-const fixValidationOfCurrentElement = () => {
+const getValidatedCurrentElement = (currentElement, maxElement) => {
     if (isTooSmall(currentElement)) {
-        currentElement = 1;
+        return 1;
     } else if (isTooBig(currentElement, maxElement)) {
-        currentElement = maxElement;
+        return maxElement;
+    } else {
+        return currentElement;
     }
 };
 
-const updateMaxElement = () => {
-    const newValue = paginationComponentInput.value;
+const updateMaxElement = e => {
+    const newValue = e.target.value;
     if (!isNaN(newValue) && newValue) {
         maxElement =
             Number(newValue) <= MAX_PAGE_LIMIT
                 ? Math.round(Number(newValue))
                 : MAX_PAGE_LIMIT;
+
         if (isTooSmall(maxElement)) {
             maxElement = DEFAULT_FIRST_ELEMENT;
         }
-        fixValidationOfCurrentElement();
-        renderPages(currentElement, maxElement);
+
+        currentElement = getValidatedCurrentElement(currentElement, maxElement);
+        const paginationPages = renderPages(currentElement, maxElement);
+        paginationComponentPages.insertAdjacentHTML(
+            'afterbegin',
+            paginationPages
+        );
+
+        addClickEventsOnPages(maxElement);
     }
 };
 
@@ -111,18 +138,24 @@ const loadPreviousPage = () => {
     if (!isTooSmall(currentElement)) {
         currentElement = Number(currentElement) - 1;
     } else {
-        fixValidationOfCurrentElement();
+        currentElement = getValidatedCurrentElement(currentElement, maxElement);
     }
-    renderPages(currentElement, maxElement);
+
+    const paginationPages = renderPages(currentElement, maxElement);
+    paginationComponentPages.insertAdjacentHTML('afterbegin', paginationPages);
+    addClickEventsOnPages(maxElement);
 };
 
 const loadNextPage = () => {
     if (!isTooBig(currentElement, maxElement)) {
         currentElement = Number(currentElement) + 1;
     } else {
-        fixValidationOfCurrentElement();
+        currentElement = getValidatedCurrentElement(currentElement, maxElement);
     }
-    renderPages(currentElement, maxElement);
+
+    const paginationPages = renderPages(currentElement, maxElement);
+    paginationComponentPages.insertAdjacentHTML('afterbegin', paginationPages);
+    addClickEventsOnPages(maxElement);
 };
 
 document.addEventListener('keydown', e => {
@@ -142,8 +175,16 @@ paginationComponentInput.addEventListener(
     debounce(updateMaxElement, 1000)
 );
 
-updateCurrentElement();
-if (isTooBig(currentElement, maxElement) || isTooSmall(currentElement)) {
-    fixValidationOfCurrentElement();
+if (getCurrentElement() && getCurrentElement() >= 1) {
+    currentElement = getCurrentElement();
 }
-renderPages(currentElement, maxElement);
+
+if (isTooBig(currentElement, maxElement) || isTooSmall(currentElement)) {
+    currentElement = getValidatedCurrentElement(currentElement, maxElement);
+}
+
+const paginationPages = renderPages(currentElement, maxElement);
+paginationComponentPages.insertAdjacentHTML('afterbegin', paginationPages);
+addClickEventsOnPages(maxElement);
+
+export { paginationComponentContainer };

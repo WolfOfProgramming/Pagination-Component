@@ -1,4 +1,4 @@
-export const renderForm = parentElement => {
+export const renderForm = () => {
     const input = /* HTML */ `
         <form action="" method="GET" class="pagination-component__form">
             <label for="max-element-input">Max page:</label>
@@ -9,5 +9,5 @@ export const renderForm = parentElement => {
             />
         </form>
     `;
-    parentElement.insertAdjacentHTML('afterbegin', input);
+    return input;
 };

@@ -5,7 +5,7 @@ const buttonSvg = {
         '<svg class="pagination-component__svg" viewBox="0 0 24 24"><path class="pagination-component__path" fill="#000000" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"/></svg>'
 };
 
-export const renderButton = (side, parentElement) => {
+export const renderButton = side => {
     const button = /* HTML */ `
         <button
             class="pagination-component__button pagination-component__button--${side}"
@@ -13,5 +13,5 @@ export const renderButton = (side, parentElement) => {
             ${buttonSvg[side]}
         </button>
     `;
-    parentElement.insertAdjacentHTML('beforeend', button);
+    return button;
 };
