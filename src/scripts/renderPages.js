@@ -31,12 +31,17 @@ const getPaginationEndWhenBothDots = paginationStart => {
 
 const getFirstElements = () => {
     const firstElements = /* HTML */ `
-        <li class="pagination-component__page" id="1">
+        <li
+            class="pagination-component__page"
+            id="1"
+            data-testid="pagination-page"
+        >
             <a class="pagination-component__link">1</a>
         </li>
         <li
             class="
             pagination-component__page"
+            data-testid="pagination-page"
         >
             <a class="pagination-component__link">...</a>
         </li>
@@ -46,10 +51,11 @@ const getFirstElements = () => {
 
 const getLastElements = maxElement => {
     const lastElements = /* HTML */ `
-        <li class="pagination-component__page">
+        <li class="pagination-component__page" data-testid="pagination-page">
             <a class="pagination-component__link">...</a>
         </li>
         <li
+            data-testid="pagination-page"
             class="
             pagination-component__page"
             id="${maxElement}"
@@ -70,11 +76,11 @@ const getPaginationElements = (
     for (let counter = paginationStart; counter <= paginationEnd; counter++) {
         if (currentElement === counter) {
             paginationPages += `<li
-            class="pagination-component__page pagination-component__page--active" id="${counter}"><a class="pagination-component__link">${counter}</a></li>`;
+            class="pagination-component__page pagination-component__page--active" id="${counter}" data-testid="pagination-page"><a class="pagination-component__link">${counter}</a></li>`;
             continue;
         }
         paginationPages += `<li
-            class="pagination-component__page" id="${counter}"><a class="pagination-component__link">${counter}</a></li>`;
+            class="pagination-component__page" id="${counter}" data-testid="pagination-page"><a class="pagination-component__link">${counter}</a></li>`;
     }
     return paginationPages;
 };

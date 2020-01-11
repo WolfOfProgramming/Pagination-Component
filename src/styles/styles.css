@@ -60,11 +60,11 @@
     width: 20px;
 }
 
-.pagination-component__button--left {
+.pagination-component__button--prev {
     order: -1;
 }
 
-.pagination-component__button--right {
+.pagination-component__button--next {
     order: 1;
 }
 

@@ -6,6 +6,7 @@ export const renderForm = () => {
                 id="max-element-input"
                 class="pagination-component__input"
                 type="text"
+                data-testid="main-input"
             />
         </form>
     `;
