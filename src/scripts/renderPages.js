@@ -29,7 +29,7 @@ const getPaginationEndWhenBothDots = paginationStart => {
     return paginationStart + VISIBLE_ELEMENTS_AFTER_FIRST_ELEMENT_ON_MIDDLE;
 };
 
-const getFirstElements = () => {
+const getFirstElementsTemplate = () => {
     const firstElements = /* HTML */ `
         <li
             class="pagination-component__page"
@@ -49,7 +49,7 @@ const getFirstElements = () => {
     return firstElements;
 };
 
-const getLastElements = maxElement => {
+const getLastElementsTemplate = maxElement => {
     const lastElements = /* HTML */ `
         <li class="pagination-component__page" data-testid="pagination-page">
             <a class="pagination-component__link">...</a>
@@ -66,6 +66,30 @@ const getLastElements = maxElement => {
     return lastElements;
 };
 
+const getActivePage = counter => {
+    return /* HTML */ `
+        <li
+            class="pagination-component__page pagination-component__page--active"
+            id="${counter}"
+            data-testid="pagination-page"
+        >
+            <a class="pagination-component__link">${counter}</a>
+        </li>
+    `;
+};
+
+const getRegularPage = counter => {
+    return /* HTML */ `
+        <li
+            class="pagination-component__page"
+            id="${counter}"
+            data-testid="pagination-page"
+        >
+            <a class="pagination-component__link">${counter}</a>
+        </li>
+    `;
+};
+
 const getPaginationElements = (
     paginationStart,
     paginationEnd,
@@ -75,12 +99,10 @@ const getPaginationElements = (
 
     for (let counter = paginationStart; counter <= paginationEnd; counter++) {
         if (currentElement === counter) {
-            paginationPages += `<li
-            class="pagination-component__page pagination-component__page--active" id="${counter}" data-testid="pagination-page"><a class="pagination-component__link">${counter}</a></li>`;
+            paginationPages += getActivePage(counter);
             continue;
         }
-        paginationPages += `<li
-            class="pagination-component__page" id="${counter}" data-testid="pagination-page"><a class="pagination-component__link">${counter}</a></li>`;
+        paginationPages += getRegularPage(counter);
     }
     return paginationPages;
 };
@@ -92,7 +114,7 @@ const addThreeDotsOnRightSide = (currentElement, maxElement) => {
         paginationEnd,
         currentElement
     );
-    paginationPages += getLastElements(maxElement);
+    paginationPages += getLastElementsTemplate(maxElement);
     return paginationPages;
 };
 
@@ -101,7 +123,7 @@ const addThreeDotsOnLeftSide = (currentElement, maxElement) => {
         currentElement,
         maxElement
     );
-    let paginationPages = getFirstElements();
+    let paginationPages = getFirstElementsTemplate();
     paginationPages += getPaginationElements(
         paginationStart,
         maxElement,
@@ -113,13 +135,13 @@ const addThreeDotsOnLeftSide = (currentElement, maxElement) => {
 const addThreeDotsOnBothSides = (currentElement, maxElement) => {
     const paginationStart = getPaginationStartWhenBothDots(currentElement);
     const paginationEnd = getPaginationEndWhenBothDots(paginationStart);
-    let paginationPages = getFirstElements();
+    let paginationPages = getFirstElementsTemplate();
     paginationPages += getPaginationElements(
         paginationStart,
         paginationEnd,
         currentElement
     );
-    paginationPages += getLastElements(maxElement);
+    paginationPages += getLastElementsTemplate(maxElement);
     return paginationPages;
 };
 
@@ -162,9 +184,11 @@ const isApplicableForAddingLeftDots = (currentElement, maxElement) => {
 export const createPagesStructure = (currentElement, maxElement) => {
     if (canAllElementsBeShown(maxElement)) {
         return getAllPages(currentElement, maxElement);
-    } else if (isApplicableForAddingRightDots(currentElement, maxElement)) {
+    }
+    if (isApplicableForAddingRightDots(currentElement, maxElement)) {
         return addThreeDotsOnRightSide(currentElement, maxElement);
-    } else if (isApplicableForAddingLeftDots(currentElement, maxElement)) {
+    }
+    if (isApplicableForAddingLeftDots(currentElement, maxElement)) {
         return addThreeDotsOnLeftSide(currentElement, maxElement);
     } else {
         return addThreeDotsOnBothSides(currentElement, maxElement);

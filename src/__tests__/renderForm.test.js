@@ -8,9 +8,7 @@ import {
     waitForDomChange
 } from '@testing-library/dom';
 import '@testing-library/jest-dom/extend-expect';
-import { main } from '../scripts/main';
-
-const POSITION_TO_TEST_PREV_BTN = 4;
+import { renderMain } from '../scripts/main';
 
 function getExampleDOM() {
     const div = document.createElement('div');
@@ -23,14 +21,18 @@ function getExampleDOM() {
     </article>
     </div>
     `;
-    main(div);
+    renderMain(div);
     return div;
 }
 
 // afterEach(() => (document.querySelector('.container').innerHTML = ''));
 
-describe('Tests', () => {
+describe('Testing rendering of Pagination App', () => {
     let container;
+
+    function clickButton(btn) {
+        fireEvent.click(btn, { button: 1 });
+    }
 
     beforeEach(() => {
         const url = new URL(`?p=1`, window.location.href);
@@ -38,11 +40,11 @@ describe('Tests', () => {
         container = getExampleDOM();
     });
 
-    test('Testing rendering', () => {
+    test('Should render all elements by default', () => {
         const btnPrev = getByTestId(container, 'prevBtn');
         const btnNext = getByTestId(container, 'nextBtn');
         const input = getByTestId(container, 'main-input');
-        let paginationPages = getAllByTestId(container, 'pagination-page');
+        const paginationPages = getAllByTestId(container, 'pagination-page');
 
         expect(queryByTestId(container, 'pagination')).toBeTruthy();
         expect(btnNext).toBeTruthy();
@@ -50,72 +52,62 @@ describe('Tests', () => {
         expect(input).toBeTruthy();
         expect(paginationPages).toBeTruthy();
         expect(paginationPages.length).toBe(6);
-
-        fireEvent.click(btnNext, { button: 1 });
-        fireEvent.click(btnNext, { button: 1 });
-
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(6);
     });
 
-    test('Next Button', () => {
+    test('PaginationComponent should render correct number of elements after clicking on right button', () => {
         const btnNext = getByTestId(container, 'nextBtn');
-        let paginationPages = getAllByTestId(container, 'pagination-page');
+        const paginationPages = getAllByTestId(container, 'pagination-page');
 
         expect(paginationPages.length).toBe(6);
 
-        fireEvent.click(btnNext, { button: 1 });
-        fireEvent.click(btnNext, { button: 1 });
+        waitForDomChange({ container }).then(() => {
+            clickButton(btnNext);
+            clickButton(btnNext);
+            expect(paginationPages.length).toBe(6);
 
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(6);
+            clickButton(btnNext);
+            expect(paginationPages.length).toBe(7);
 
-        fireEvent.click(btnNext, { button: 1 });
-
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(7);
-
-        fireEvent.click(btnNext, { button: 1 });
-
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(8);
+            clickButton(btnNext);
+            expect(paginationPages.length).toBe(8);
+        });
     });
 
-    test('Previous Button', () => {
+    test('PaginationComponent should render correct number of elements after clicking on left button', () => {
+        const POSITION_TO_TEST_PREV_BTN = 4;
+
         const btnPrev = getByTestId(container, 'prevBtn');
         const btnNext = getByTestId(container, 'nextBtn');
-        let paginationPages = getAllByTestId(container, 'pagination-page');
+        const paginationPages = getAllByTestId(container, 'pagination-page');
 
-        fireEvent.click(btnPrev, { button: 1 });
+        waitForDomChange({ container }).then(() => {
+            clickButton(btnPrev);
+            expect(paginationPages.length).toBe(6);
 
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(6);
+            for (
+                let counter = 0;
+                counter < POSITION_TO_TEST_PREV_BTN;
+                counter++
+            ) {
+                clickButton(btnNext);
+            }
+            expect(paginationPages.length).toBe(8);
 
-        for (let counter = 0; counter < POSITION_TO_TEST_PREV_BTN; counter++) {
-            fireEvent.click(btnNext, { button: 1 });
-        }
+            clickButton(btnPrev);
+            expect(paginationPages.length).toBe(7);
 
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(8);
+            clickButton(btnPrev);
+            expect(paginationPages.length).toBe(6);
 
-        fireEvent.click(btnPrev, { button: 1 });
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(7);
+            clickButton(btnPrev);
+            expect(paginationPages.length).toBe(6);
 
-        fireEvent.click(btnPrev, { button: 1 });
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(6);
-
-        fireEvent.click(btnPrev, { button: 1 });
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(6);
-
-        fireEvent.click(btnPrev, { button: 1 });
-        paginationPages = getAllByTestId(container, 'pagination-page');
-        expect(paginationPages.length).toBe(6);
+            clickButton(btnPrev);
+            expect(paginationPages.length).toBe(6);
+        });
     });
 
-    test('Input to set max Element', async () => {
+    test('Should change value after correct input', async () => {
         const input = getByTestId(container, 'main-input');
 
         fireEvent.input(input, { target: { value: '65' } });

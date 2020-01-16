@@ -3,7 +3,7 @@ import { renderForm } from './renderForm';
 import { createPagesStructure } from './renderPages';
 import debounce from 'lodash/debounce';
 
-export function main(paginationDOM) {
+export function renderMain(paginationDOM) {
     const DEFAULT_FIRST_ELEMENT = 1;
     const DEFAULT_MAX_PAGE = 10;
     const MAX_PAGE_LIMIT = 999;

@@ -1,5 +1,4 @@
-import { main } from './main.js';
+import { renderMain } from './main.js';
 
 const paginationDom = document.querySelector('.container');
-
-main(paginationDom);
+renderMain(paginationDom);
