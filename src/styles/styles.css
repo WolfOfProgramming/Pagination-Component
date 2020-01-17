@@ -1,0 +1,132 @@
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    background-color: #fefefe;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pagination-component {
+    height: 150px;
+    width: 100%;
+    max-width: 650px;
+    border-radius: 5px;
+    border: 2px solid #dddddd;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.pagination-component__container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination-component__button,
+.pagination-component__page {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background-color: #f6f6f6;
+    color: #000000;
+    border-radius: 2px;
+    margin: 2px;
+}
+
+.pagination-component__link {
+    font-size: 10px;
+}
+
+.pagination-component__button {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.pagination-component__svg {
+    height: 20px;
+    width: 20px;
+}
+
+.pagination-component__button--prev {
+    order: -1;
+}
+
+.pagination-component__button--next {
+    order: 1;
+}
+
+.pagination-component__button--disabled {
+    opacity: 0.5;
+}
+
+.pagination-component__page--active {
+    background-color: #ff4757;
+    color: #ffffff;
+}
+
+.pagination-component__pages {
+    display: flex;
+}
+
+.pagination-component__page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+@media (min-width: 350px) {
+    .pagination-component__button,
+    .pagination-component__page {
+        width: 30px;
+        height: 30px;
+        border-radius: 3px;
+        margin: 3px;
+    }
+    .pagination-component__svg {
+        height: 30px;
+        width: 30px;
+    }
+
+    .pagination-component {
+        padding: 1em;
+        height: 150px;
+    }
+    .pagination-component__link {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 600px) {
+    .pagination-component {
+        height: 250px;
+        padding: 3em;
+        justify-content: center;
+    }
+
+    .pagination-component__button,
+    .pagination-component__page {
+        width: 40px;
+        height: 40px;
+        border-radius: 5px;
+        margin: 5px;
+    }
+
+    .pagination-component__svg {
+        height: 40px;
+        width: 40px;
+    }
+}
